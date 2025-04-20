@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚀 Pitch'r – Revolutionizing Startup Investment
 
 **Pitch'r** is a next-gen investment platform that seamlessly connects startups with investors, democratizing access to funding and fostering innovation.
@@ -85,3 +86,6 @@ Invest in **Pitch'r** and be part of the future of startup investment.
 
 ---
 
+=======
+# pichers
+>>>>>>> 5d41a6157859c597178bf72fc565cdfd0c87c625
