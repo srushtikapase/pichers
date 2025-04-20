@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Appointments</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #fff3e0;
+    }
+    .appointment {
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+    button {
+      padding: 6px 12px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .accept {
+      background: #81c784;
+      color: white;
+    }
+    .reject {
+      background: #e57373;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Admin Panel - Appointment Requests</h2>
+  <div id="appointments"></div>
+
+  <script>
+    const container = document.getElementById("appointments");
+    const data = localStorage.getItem("appointment");
+
+    if (data) {
+      const appt = JSON.parse(data);
+
+      const div = document.createElement("div");
+      div.className = "appointment";
+      div.innerHTML = `
+        <strong>Date:</strong> ${appt.date}<br>
+        <strong>Time:</strong> ${appt.time}<br>
+        <strong>Service:</strong> ${appt.service}<br>
+        <strong>Notes:</strong> ${appt.notes}<br>
+        <strong>Status:</strong> <span id="status">Pending</span><br><br>
+        <button class="accept" onclick="updateStatus('Confirmed')">Accept</button>
+        <button class="reject" onclick="updateStatus('Rejected')">Reject</button>
+      `;
+      container.appendChild(div);
+    } else {
+      container.innerHTML = "<p>No appointments found.</p>";
+    }
+
+    function updateStatus(newStatus) {
+      document.getElementById("status").textContent = newStatus;
+      
+      // Show popup
+      showPopup(`Appointment ${newStatus.toLowerCase()}.`);
+    }
+
+    function showPopup(message) {
+      const popup = document.createElement("div");
+      popup.textContent = message;
+      popup.style.position = "fixed";
+      popup.style.top = "20px";
+      popup.style.right = "20px";
+      popup.style.padding = "15px";
+      popup.style.background = "#4caf50";
+      popup.style.color = "#fff";
+      popup.style.borderRadius = "5px";
+      popup.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+      popup.style.zIndex = "9999";
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        popup.remove();
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

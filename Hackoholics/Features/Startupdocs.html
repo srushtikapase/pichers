@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Startup Resource Hub</title>
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0faff, #d4e5ff);
+      overflow-x: hidden;
+    }
+    spline-viewer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      text-align: center;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: #2a3d66;
+    }
+
+    /* Free Resources Button */
+    #freeResourcesBtn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 20;
+      padding: 0.6rem 1.2rem;
+      background-color: #3a7bd5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0 transparent;
+    }
+    #freeResourcesBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #3a7bd5;
+    }
+    #freeResourcesBtn.active {
+      background-color: #295cb2;
+      box-shadow: 0 0 18px #3a7bd5;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+      z-index: 5;
+      position: relative;
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 25px 35px rgba(0,0,0,0.15);
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #2a3d66;
+      font-size: 1.3rem;
+    }
+    .card p {
+      color: #444;
+    }
+    .read-more {
+      display: inline-block;
+      margin-top: 1rem;
+      color: #3a7bd5;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .read-more:hover {
+      transform: scale(1.05);
+      text-decoration: underline;
+    }
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(8px);
+      display: none;
+      flex-direction: column;
+      padding: 3rem 2rem;
+      overflow-y: auto;
+      z-index: 10000;
+      animation: fadeIn 0.4s ease;
+    }
+    .popup.active {
+      display: flex;
+    }
+    .popup .close-btn, .popup .download-btn {
+      position: fixed;
+      padding: 0.7rem 1rem;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      background: #3a7bd5;
+      color: white;
+      border-radius: 8px;
+      transition: background 0.3s;
+      z-index: 10001;
+    }
+    .popup .close-btn:hover, .popup .download-btn:hover {
+      background: #295cb2;
+    }
+    .popup .download-btn {
+      top: 1rem;
+      left: 1rem;
+    }
+    .popup .close-btn {
+      bottom: 1rem;
+      right: 1rem;
+    }
+    .popup-content {
+      margin-top: 4rem;
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.6;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .popup-content h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <spline-viewer url="https://prod.spline.design/tQ1EYVxnkEV7qs6L/scene.splinecode"></spline-viewer>
+  
+  <button id="freeResourcesBtn" href="FreeResources.html">Free Resources</button>
+
+  <header>
+    <h1>Startup Resource Hub</h1>
+  </header>
+  
+  <div class="container" id="cardContainer"></div>
+
+  <div class="popup" id="popup">
+    <button class="download-btn" id="downloadBtn">Download PDF</button>
+    <button class="close-btn" onclick="closePopup()">Minimize</button>
+    <div class="popup-content" id="popupContent"></div>
+  </div>
+
+  <script>
+    const data = [
+      {
+        title: "F6S – Where Founders Grow",
+        summary: "Connect with accelerators, find grants, jobs, get free tools & more.",
+        details: "F6S is one of the world's largest networks for startup founders and entrepreneurs..."
+      },
+      {
+        title: "HubSpot for Startups",
+        summary: "Access free startup kits, templates, tools & CRM platform essentials.",
+        details: "HubSpot provides a suite of free resources and CRM tools..."
+      },
+      {
+        title: "StartupResources.io",
+        summary: "Weekly curated tools and links to help founders grow faster.",
+        details: "StartupResources.io delivers a weekly newsletter of curated startup tools..."
+      },
+      {
+        title: "SCORE Mentorship",
+        summary: "Get free mentorship and downloadable startup planning templates.",
+        details: "SCORE is a non-profit resource partner of the U.S. Small Business Administration..."
+      },
+      {
+        title: "Canva Startup Kits",
+        summary: "Easily design pitch decks, logos, social media posts & flyers.",
+        details: "Canva empowers non-designers to create visually stunning assets..."
+      },
+      {
+        title: "Notion Startup OS",
+        summary: "Manage your entire startup from one Notion template.",
+        details: "Notion's Startup OS is an all-in-one workspace..."
+      },
+      {
+        title: "AWS Activate",
+        summary: "Access $1000s in AWS credits, tools & training for early-stage startups.",
+        details: "AWS Activate is a program for startups offering up to $100,000 in AWS credits..."
+      },
+      {
+        title: "First Round Review",
+        summary: "Must-read essays & tactical guides from top founders & operators.",
+        details: "First Round Review is one of the most respected editorial publications..."
+      },
+      {
+        title: "OpenVC Pitch Deck Vault",
+        summary: "Access real startup pitch decks & VC contact database.",
+        details: "OpenVC offers a growing library of real startup pitch decks..."
+      },
+      {
+        title: "CB Insights Free Tools",
+        summary: "Explore startup trends, funding reports, and market maps.",
+        details: "CB Insights provides market research tools, trend reports, and funding data..."
+      }
+    ];
+
+    const cardContainer = document.getElementById('cardContainer');
+    const popup = document.getElementById('popup');
+    const popupContent = document.getElementById('popupContent');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const freeResourcesBtn = document.getElementById('freeResourcesBtn');
+
+    data.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <h3>${item.title}</h3>
+        <p>${item.summary}</p>
+        <a href="#" class="read-more" data-index="${index}">Read More</a>
+      `;
+      cardContainer.appendChild(card);
+    });
+
+    document.querySelectorAll('.read-more').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const index = this.getAttribute('data-index');
+        const content = data[index].details;
+        const title = data[index].title;
+        popupContent.innerHTML = `<h2>${title}</h2><p>${content}</p>`;
+        popup.classList.add('active');
+
+        downloadBtn.onclick = () => {
+          const blob = new Blob([`${title}\n\n${content}`], { type: 'application/pdf' });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `${title.replace(/\s+/g, '_')}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        };
+      });
+    });
+
+    function closePopup() {
+      popup.classList.remove('active');
+    }
+
+    // Toggle animation for the Free Resources button
+    freeResourcesBtn.addEventListener('click', () => {
+      freeResourcesBtn.classList.toggle('active');
+      alert("Free resources button clicked! (You can add toggle logic here)");
+    });
+  </script>
+</body>
+</html>

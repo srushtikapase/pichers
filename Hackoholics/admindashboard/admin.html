@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pitch'r Admin Panel</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #f9f9fc, #f1f1ff);
+      color: #1f1f2e;
+    }
+
+    header {
+      background-color: #7a5af8;
+      padding: 20px 40px;
+      color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    .container {
+      padding: 40px 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    th, td {
+      padding: 12px 18px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #7a5af8;
+      color: white;
+      font-weight: bold;
+    }
+
+    td {
+      background-color: white;
+    }
+
+    button {
+      background: linear-gradient(90deg, #7a5af8 0%, #7f4af1 100%);
+      color: white;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #6845e6 0%, #7440e0 100%);
+    }
+
+    .toast {
+      position: fixed;
+      top: 80px;
+      right: 30px;
+      background-color: #6845e6;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      animation: fadeSlideIn 0.5s ease forwards;
+      display: none;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Pitch'r Admin Panel</h1>
+  </header>
+
+  <div class="container">
+    <div class="toast" id="toast">✅ New investor form submitted!</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Business</th>
+          <th>Budget</th>
+          <th>Profit</th>
+          <th>Revenue</th>
+          <th>Email</th>
+          <th>Document</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="panel"></tbody>
+    </table>
+
+    <canvas id="barChart" style="margin-top: 50px;"></canvas>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8yRy651Cely4xCyjno2i1Uok-_Jnt3w0",
+      authDomain: "pitch-1a3c0.firebaseapp.com",
+      projectId: "pitch-1a3c0",
+      storageBucket: "pitch-1a3c0.appspot.com",
+      messagingSenderId: "240686603842",
+      appId: "1:240686603842:web:8a69a5111f8de90e2997db"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    emailjs.init("g4GsPj5DDHJDbdb11");
+
+    const panel = document.getElementById("panel");
+    const dataRef = ref(db, "registrations");
+    const toast = document.getElementById("toast");
+
+    let chartInstance;
+
+    function showToast() {
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 3000);
+    }
+
+    function renderTable(dataList) {
+      panel.innerHTML = "";
+      dataList.reverse().forEach(({ key, data }) => {
+        const pdfLink = `data:application/pdf;base64,${data.document}`;
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td><strong>${data.fname} ${data.lname}</strong></td>
+          <td>${data.business}</td>
+          <td>$${data.budget}</td>
+          <td>$${data.profit}</td>
+          <td>$${data.revenue}</td>
+          <td>${data.investor_email}</td>
+          <td><a href="${pdfLink}" target="_blank">📄 View</a></td>
+          <td><button onclick="verify('${key}', '${data.investor_email}', '${data.fname}')">Verify</button></td>
+        `;
+        panel.appendChild(row);
+      });
+    }
+
+    function renderChart(dataList) {
+      const labels = dataList.map(d => d.data.fname);
+      const budgets = dataList.map(d => parseFloat(d.data.budget) || 0);
+      const profits = dataList.map(d => parseFloat(d.data.profit) || 0);
+      const revenues = dataList.map(d => parseFloat(d.data.revenue) || 0);
+
+      const ctx = document.getElementById("barChart").getContext("2d");
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Budget', data: budgets, backgroundColor: '#7a5af8' },
+            { label: 'Profit', data: profits, backgroundColor: '#4f46e5' },
+            { label: 'Revenue Goal', data: revenues, backgroundColor: '#a78bfa' }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Investor Financial Overview' }
+          }
+        }
+      });
+    }
+
+    let prevSize = 0;
+
+    onValue(dataRef, (snapshot) => {
+      const dataList = [];
+      snapshot.forEach(child => {
+        dataList.push({ key: child.key, data: child.val() });
+      });
+
+      if (dataList.length > prevSize) {
+        showToast();
+        prevSize = dataList.length;
+      }
+
+      renderTable(dataList);
+      renderChart(dataList);
+    });
+
+    window.verify = async (id, email, name) => {
+      try {
+        await update(ref(db, `registrations/${id}`), { verified: true });
+
+        await emailjs.send("service_7twa8qh", "template_k6xslc8", {
+          to_name: name,
+          to_email: email
+        });
+
+        alert("Investor Verified and Email Sent!");
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Verification or Email failed.");
+      }
+    };
+  </script>
+</body>
+</html>

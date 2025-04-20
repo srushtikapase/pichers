@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Book Appointment</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f0f8ff;
+    }
+    .slot {
+      padding: 10px;
+      border: 1px solid #00acc1;
+      border-radius: 6px;
+      margin: 5px;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .slot:hover {
+      background: #e0f7fa;
+    }
+    .slot.selected {
+      background: #00acc1;
+      color: white;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      margin: 10px 0;
+      width: 300px;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      background: #26a69a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00796b;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Book an Appointment</h2>
+
+  <label>Select Date:</label>
+  <input type="date" id="date"><br>
+
+  <label>Select Time Slot:</label>
+  <div id="timeSlots"></div><br>
+
+  <label>Service Type:</label>
+  <select id="service">
+    <option value="">--Select--</option>
+    <option value="Consultation">Consultation</option>
+    <option value="Check-up">Check-up</option>
+    <option value="Follow-up">Follow-up</option>
+  </select><br>
+
+  <label>Notes:</label>
+  <textarea id="notes" rows="4" placeholder="Write notes (optional)"></textarea><br>
+
+  <button onclick="submitAppointment()">Book Now</button>
+
+  <script>
+    const slotContainer = document.getElementById("timeSlots");
+    const selected = { time: null };
+
+    function formatTime(hour, min) {
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const h = hour % 12 || 12;
+      const m = min < 10 ? "0" + min : min;
+      return `${h}:${m} ${ampm}`;
+    }
+
+    function generateSlots() {
+      for (let h = 9; h < 17; h++) {
+        for (let m = 0; m < 60; m += 30) {
+          const time = formatTime(h, m);
+          const slot = document.createElement("div");
+          slot.className = "slot";
+          slot.textContent = time;
+          slot.onclick = () => {
+            document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
+            slot.classList.add("selected");
+            selected.time = time;
+          };
+          slotContainer.appendChild(slot);
+        }
+      }
+    }
+
+    generateSlots();
+
+    function submitAppointment() {
+      const date = document.getElementById("date").value;
+      const service = document.getElementById("service").value;
+      const notes = document.getElementById("notes").value;
+
+      if (!date || !selected.time || !service) {
+        alert("Please fill all required fields and choose a time.");
+        return;
+      }
+
+      const appointment = {
+        date,
+        time: selected.time,
+        service,
+        notes,
+        status: "pending"
+      };
+
+      // Simulate saving to database
+      localStorage.setItem("appointment", JSON.stringify(appointment));
+
+      // Show popup
+      showPopup("✅ Appointment booked successfully!");
+
+      // Reset form
+      document.getElementById("date").value = "";
+      document.getElementById("service").value = "";
+      document.getElementById("notes").value = "";
+      document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
+      selected.time = null;
+    }
+
+    function showPopup(message) {
+      const popup = document.createElement("div");
+      popup.textContent = message;
+      popup.style.position = "fixed";
+      popup.style.top = "20px";
+      popup.style.right = "20px";
+      popup.style.padding = "15px";
+      popup.style.background = "#4caf50";
+      popup.style.color = "#fff";
+      popup.style.borderRadius = "5px";
+      popup.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+      popup.style.zIndex = "9999";
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        popup.remove();
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

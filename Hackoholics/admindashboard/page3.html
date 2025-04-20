@@ -1,0 +1,127 @@
+<!-- ======================== REGISTRATION FORM ======================== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pitch'r | Startup Connect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8yRy651Cely4xCyjno2i1Uok-_Jnt3w0",
+      authDomain: "pitch-1a3c0.firebaseapp.com",
+      projectId: "pitch-1a3c0",
+      storageBucket: "pitch-1a3c0.appspot.com",
+      messagingSenderId: "240686603842",
+      appId: "1:240686603842:web:8a69a5111f8de90e2997db"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("startupForm");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const fname = document.getElementById("fname").value;
+        const lname = document.getElementById("lname").value;
+        const business = document.getElementById("business").value;
+        const budget = document.getElementById("budget").value;
+        const profit = document.getElementById("profit").value;
+        const revenue = document.getElementById("revenue").value;
+        const investor_email = document.getElementById("investor_email").value;
+        const fileInput = document.getElementById("document");
+        const file = fileInput.files[0];
+
+        if (!file || file.type !== "application/pdf") {
+          alert("Please upload a valid PDF file.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function () {
+          const base64PDF = reader.result.split(",")[1];
+
+          push(ref(db, "registrations"), {
+            fname,
+            lname,
+            business,
+            budget,
+            profit,
+            revenue,
+            investor_email,
+            document: base64PDF,
+            verified: false
+          }).then(() => {
+            alert("Pitch submitted successfully!");
+            form.reset();
+          }).catch((error) => {
+            console.error("Error saving to database:", error);
+            alert("Something went wrong!");
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  </script>
+  <style>
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .bg-animate {
+      background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+      animation: gradientMove 5s infinite alternate ease-in-out;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 shadow-2xl rounded-3xl overflow-hidden">
+    <div class="bg-animate text-white p-10 flex flex-col justify-center relative" data-aos="fade-right">
+      <div class="absolute top-6 left-6 text-xl font-bold tracking-wide">
+        <i class="ph ph-lightning text-yellow-300 text-2xl"></i> Pitch'r
+      </div>
+      <div class="z-10">
+        <h2 class="text-4xl font-bold mb-4 leading-tight">Startup? Meet Investors</h2>
+        <p class="text-lg opacity-90">Seamless pitch submission. Fast-track your funding journey with us.</p>
+        <div class="mt-10 text-sm text-white opacity-80">Trusted by 50+ startups across the globe</div>
+      </div>
+    </div>
+    <div class="bg-white p-10 lg:p-14" data-aos="fade-left">
+      <h2 class="text-2xl font-semibold mb-6 text-gray-800">Register Your Startup</h2>
+      <form id="startupForm" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" id="fname" placeholder="First Name" required class="p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" />
+          <input type="text" id="lname" placeholder="Last Name" required class="p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" />
+        </div>
+        <input type="text" id="business" placeholder="Business Name" required class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="number" id="budget" placeholder="Budget ($)" required class="p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" />
+          <input type="number" id="profit" placeholder="Expected Profit ($)" required class="p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" />
+        </div>
+        <input type="text" id="revenue" placeholder="Target Investors" required class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" />
+        <input type="email" id="investor_email" placeholder="Email Address" required class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 outline-none" />
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Attach PDF Pitch</label>
+          <input type="file" id="document" accept=".pdf" required class="w-full border border-gray-300 p-2 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200" />
+        </div>
+        <button type="submit" class="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold transition duration-300">
+          Submit Pitch
+        </button>
+      </form>
+    </div>
+  </div>
+  <script>AOS.init();</script>
+</body>
+</html>

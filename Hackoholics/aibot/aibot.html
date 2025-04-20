@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat with Pitch'r Assistant</title>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #fddde6, #d0eaff);
+      color: #333;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+    }
+
+    .content-wrapper {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+    }
+
+    .left-panel {
+      flex: 1;
+      padding: 60px 40px;
+      background: rgba(255, 255, 255, 0.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .left-panel h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #3a3a3a;
+    }
+
+    .left-panel p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      color: #555;
+    }
+
+    .left-panel iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      background: white;
+    }
+
+    .right-panel {
+      flex: 1;
+      position: relative;
+    }
+
+    .right-panel lottie-player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    @media (max-width: 900px) {
+      .content-wrapper {
+        flex-direction: column;
+      }
+
+      .right-panel {
+        height: 300px;
+      }
+
+      .left-panel {
+        padding: 40px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="content-wrapper">
+    <div class="left-panel">
+      <h1>Welcome to Pitch'r</h1>
+      <p>Your assistant for seamless investor-entrepreneur connections</p>
+      <iframe 
+        src="https://cdn.botpress.cloud/webchat/v2.3/shareable.html?configUrl=https://files.bpcontent.cloud/2025/04/17/16/20250417160624-CUF1A29P.json">
+      </iframe>
+    </div>
+
+    <div class="right-panel">
+      <lottie-player
+        src="https://assets10.lottiefiles.com/packages/lf20_w51pcehl.json"
+        background="transparent"
+        speed="1"
+        loop
+        autoplay>
+      </lottie-player>
+    </div>
+  </div>
+
+</body>
+</html>
